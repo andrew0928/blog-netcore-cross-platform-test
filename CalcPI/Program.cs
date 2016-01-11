@@ -40,7 +40,7 @@ namespace CalcPI
                 total += t.Result.Time;
             }
 
-            return TimeSpan.FromMilliseconds(total.TotalMilliseconds / tasks.Count);
+            return TimeSpan.FromTicks(total.Ticks / tasks.Count);
         }
 
         public class Result
