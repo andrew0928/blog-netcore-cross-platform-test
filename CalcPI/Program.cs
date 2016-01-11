@@ -9,28 +9,49 @@ namespace CalcPI
     {
         public static void Main(string[] args)
         {
-            int threads = 32;
-            int digits = 30000;
+            int threads = 4;
+            int digits = 10000;
 
-            if (args.Length > 0) digits = int.Parse(args[0]);
-            if (args.Length > 1) threads = int.Parse(args[1]);
+            if (args.Length > 0) threads = int.Parse(args[0]);
+            if (args.Length > 1) digits = int.Parse(args[1]);
 
             Console.WriteLine("thread count: {0}", threads);
             Console.WriteLine("digits count: {0}", digits);
 
             DateTime start = DateTime.Now;
-            List<Task> tasks = new List<Task>();
+            List<Task<Result>> tasks = new List<Task<Result>>();
             for (int i = 0; i < threads; i++)
             {
-                tasks.Add(Task.Factory.StartNew(() => { CalculatePi(digits); }));
+                tasks.Add(Task<Result>.Factory.StartNew(() => { return CalculatePi(digits); }));
             }
             Task.WaitAll(tasks.ToArray());
-            Console.WriteLine(DateTime.Now - start);
+            Console.WriteLine("================================================================================");
+            Console.WriteLine("Compute PI complete!");
+            Console.WriteLine("Total Excute Time:   {0} (ms)", (DateTime.Now - start).TotalMilliseconds);
+            Console.WriteLine("Average Excute Time: {0} (ms)", GetAverage(tasks).TotalMilliseconds);
         }
 
-
-        static public string CalculatePi(int digits)
+        static public TimeSpan GetAverage(List<Task<Result>> tasks)
         {
+            TimeSpan total = TimeSpan.Zero;
+
+            foreach(Task<Result> t in tasks)
+            {
+                total += t.Result.Time;
+            }
+
+            return TimeSpan.FromMilliseconds(total.TotalMilliseconds / tasks.Count);
+        }
+
+        public class Result
+        {
+            public string PI;
+            public TimeSpan Time;
+        }
+
+        static public Result CalculatePi(int digits)
+        {
+            DateTime startTime = DateTime.Now;
             string result = "";
             digits++;
 
@@ -62,7 +83,11 @@ namespace CalcPI
                     x[j] = r[j] * 10;
             }
 
-            return result;
+            return new Result()
+            {
+                PI = result,
+                Time = DateTime.Now - startTime
+            };
         }
     }
 }
