@@ -1,5 +1,5 @@
 
-## Using Ubuntu + Docker
+## 如何在 Ubuntu 上面執行? 
 
 最簡單的方式，直接使用 microsoft 提供的 container image 即可。
 docker image: microsoft/dotnet:latest
